@@ -1,0 +1,156 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: blog-db
+    environment:
+      POSTGRES_USER: blog
+      POSTGRES_PASSWORD: blog
+      POSTGRES_DB: blog
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U blog" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - blog-network
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: blog-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: blog
+      RABBITMQ_DEFAULT_PASS: blog
+    ports:
+      - "5672:5672" # AMQP
+      - "15672:15672" # Management UI
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - blog-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: blog-auth-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://blog:blog@db:5432/blog?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      GRPC_PORT: 50051
+      LOG_LEVEL: info
+    ports:
+      - "50051:50051"
+    networks:
+      - blog-network
+    restart: unless-stopped
+
+  # Article Service
+  article-service:
+    build:
+      context: .
+      dockerfile: services/article-service/Dockerfile
+    container_name: blog-article-service
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://blog:blog@db:5432/blog?sslmode=disable
+      RABBITMQ_URL: amqp://blog:blog@rabbitmq:5672/
+      AUTH_SERVICE_URL: auth-service:50051
+      GRPC_PORT: 50052
+      LOG_LEVEL: info
+    ports:
+      - "50052:50052"
+    networks:
+      - blog-network
+    restart: unless-stopped
+
+  # Stats Service
+  stats-service:
+    build:
+      context: .
+      dockerfile: services/stats-service/Dockerfile
+    container_name: blog-stats-service
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://blog:blog@db:5432/blog?sslmode=disable
+      RABBITMQ_URL: amqp://blog:blog@rabbitmq:5672/
+      GRPC_PORT: 50053
+      LOG_LEVEL: info
+    ports:
+      - "50053:50053"
+    networks:
+      - blog-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: blog-api-gateway
+    depends_on:
+      - auth-service
+      - article-service
+      - stats-service
+    environment:
+      AUTH_SERVICE_URL: auth-service:50051
+      ARTICLE_SERVICE_URL: article-service:50052
+      STATS_SERVICE_URL: stats-service:50053
+      PORT: 8080
+      ALLOW_ORIGIN: http://localhost:5173
+      LOG_LEVEL: info
+    ports:
+      - "8080:8080"
+    networks:
+      - blog-network
+    restart: unless-stopped
+
+  # Legacy Backend (temporary, will be removed)
+  backend:
+    build:
+      context: ./backend
+    container_name: blog-backend-legacy
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://blog:blog@db:5432/blog?sslmode=disable
+      PORT: 8081
+      ALLOW_ORIGIN: http://localhost:5173
+      GIN_MODE: release
+    ports:
+      - "8081:8081"
+    networks:
+      - blog-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+
+
+networks:
+  blog-network:
+    driver: bridge

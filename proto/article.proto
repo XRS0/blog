@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package article;
+
+option go_package = "./article";
+
+import "google/protobuf/timestamp.proto";
+
+// ArticleService manages blog articles
+service ArticleService {
+  rpc CreateArticle(CreateArticleRequest) returns (CreateArticleResponse);
+  rpc GetArticle(GetArticleRequest) returns (GetArticleResponse);
+  rpc UpdateArticle(UpdateArticleRequest) returns (UpdateArticleResponse);
+  rpc DeleteArticle(DeleteArticleRequest) returns (DeleteArticleResponse);
+  rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse);
+  rpc GetArticlesByUser(GetArticlesByUserRequest) returns (GetArticlesByUserResponse);
+  rpc CheckArticleAccess(CheckArticleAccessRequest) returns (CheckArticleAccessResponse);
+}
+
+enum Visibility {
+  PUBLIC = 0;     // Доступна всем
+  PRIVATE = 1;    // Только автор
+  LINK = 2;       // Доступна по ссылке
+}
+
+message Article {
+  uint64 id = 1;
+  uint64 user_id = 2;
+  string title = 3;
+  string content = 4;
+  Visibility visibility = 5;
+  string access_token = 6; // Для LINK visibility
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message CreateArticleRequest {
+  uint64 user_id = 1;
+  string title = 2;
+  string content = 3;
+  Visibility visibility = 4;
+}
+
+message CreateArticleResponse {
+  Article article = 1;
+  string error = 2;
+}
+
+message GetArticleRequest {
+  uint64 id = 1;
+  uint64 viewer_id = 2; // 0 если не авторизован
+  string access_token = 3; // Для LINK visibility
+}
+
+message GetArticleResponse {
+  Article article = 1;
+  string author_username = 2;
+  string error = 3;
+}
+
+message UpdateArticleRequest {
+  uint64 id = 1;
+  uint64 user_id = 2; // Для проверки прав
+  string title = 3;
+  string content = 4;
+  Visibility visibility = 5;
+}
+
+message UpdateArticleResponse {
+  Article article = 1;
+  string error = 2;
+}
+
+message DeleteArticleRequest {
+  uint64 id = 1;
+  uint64 user_id = 2; // Для проверки прав
+}
+
+message DeleteArticleResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message ListArticlesRequest {
+  uint64 viewer_id = 1; // 0 если не авторизован
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListArticlesResponse {
+  repeated Article articles = 1;
+  repeated string author_usernames = 2; // Соответствует articles по индексу
+  int32 total = 3;
+  string error = 4;
+}
+
+message GetArticlesByUserRequest {
+  uint64 user_id = 1;
+  uint64 viewer_id = 2; // 0 если не авторизован
+}
+
+message GetArticlesByUserResponse {
+  repeated Article articles = 1;
+  string error = 2;
+}
+
+message CheckArticleAccessRequest {
+  uint64 article_id = 1;
+  uint64 viewer_id = 2;
+  string access_token = 3;
+}
+
+message CheckArticleAccessResponse {
+  bool has_access = 1;
+  string error = 2;
+}

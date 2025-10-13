@@ -1,0 +1,49 @@
+# Generated proto files in services
+services/auth-service/proto/
+services/article-service/proto/
+services/stats-service/proto/
+services/api-gateway/proto/
+
+<<<<<<< HEAD
+# Comments
+comments/
+
+=======
+>>>>>>> bc3e7cb (initial commit)
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of go build
+services/*/cmd/main
+
+# Go workspace file
+go.work
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+vendor/
+
+# Logs
+*.log

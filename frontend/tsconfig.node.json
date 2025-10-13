@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"composite": true,
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"target": "ESNext",
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
+		"skipLibCheck": true,
+		"noEmit": true,
+		"types": [
+			"node"
+		]
+	},
+	"include": [
+		"vite.config.ts",
+		"eslint.config.js"
+	]
+}

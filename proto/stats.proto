@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package stats;
+
+option go_package = "./stats";
+
+// StatsService manages article statistics
+service StatsService {
+  rpc RecordView(RecordViewRequest) returns (RecordViewResponse);
+  rpc RecordLike(RecordLikeRequest) returns (RecordLikeResponse);
+  rpc RemoveLike(RemoveLikeRequest) returns (RemoveLikeResponse);
+  rpc GetArticleStats(GetArticleStatsRequest) returns (GetArticleStatsResponse);
+  rpc GetUserLikeStatus(GetUserLikeStatusRequest) returns (GetUserLikeStatusResponse);
+  rpc GetArticlesWithStats(GetArticlesWithStatsRequest) returns (GetArticlesWithStatsResponse);
+}
+
+message ArticleStats {
+  uint64 article_id = 1;
+  uint64 views = 2;
+  uint64 likes = 3;
+}
+
+message RecordViewRequest {
+  uint64 article_id = 1;
+  uint64 user_id = 2; // 0 если анонимный просмотр
+}
+
+message RecordViewResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message RecordLikeRequest {
+  uint64 article_id = 1;
+  uint64 user_id = 2;
+}
+
+message RecordLikeResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message RemoveLikeRequest {
+  uint64 article_id = 1;
+  uint64 user_id = 2;
+}
+
+message RemoveLikeResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message GetArticleStatsRequest {
+  uint64 article_id = 1;
+}
+
+message GetArticleStatsResponse {
+  ArticleStats stats = 1;
+  string error = 2;
+}
+
+message GetUserLikeStatusRequest {
+  uint64 article_id = 1;
+  uint64 user_id = 2;
+}
+
+message GetUserLikeStatusResponse {
+  bool is_liked = 1;
+  string error = 2;
+}
+
+message GetArticlesWithStatsRequest {
+  repeated uint64 article_ids = 1;
+  uint64 viewer_id = 2; // Для проверки лайков
+}
+
+message GetArticlesWithStatsResponse {
+  repeated ArticleStatsWithLike stats = 1;
+  string error = 2;
+}
+
+message ArticleStatsWithLike {
+  uint64 article_id = 1;
+  uint64 views = 2;
+  uint64 likes = 3;
+  bool viewer_liked = 4;
+}
