@@ -1,5 +1,4 @@
 package rabbitmq
-package rabbitmq
 
 import (
 	"context"
@@ -20,8 +19,8 @@ type Client struct {
 
 // Event types
 const (
-	EventArticleViewed = "article.viewed"
-	EventArticleLiked  = "article.liked"
+	EventArticleViewed  = "article.viewed"
+	EventArticleLiked   = "article.liked"
 	EventArticleUnliked = "article.unliked"
 	EventArticleCreated = "article.created"
 )
@@ -143,7 +142,7 @@ func (c *Client) Consume(queueName string, handler func(Event) error) error {
 			}
 
 			c.logger.Debug("event received", "type", event.Type)
-			
+
 			if err := handler(event); err != nil {
 				c.logger.Error("failed to handle event", "type", event.Type, "error", err)
 				msg.Nack(false, true) // Requeue
