@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/XRS0/blog/services/article-service/internal/repository"
-	authpb "github.com/XRS0/blog/services/auth-service/proto"
+	authpb "github.com/XRS0/blog/services/article-service/proto/auth"
 	"github.com/XRS0/blog/shared/rabbitmq"
 )
 
@@ -59,6 +59,7 @@ func (s *ArticleService) Create(ctx context.Context, userID uint64, title, conte
 	}
 	if err := s.mq.Publish(ctx, "articles", "article.created", event); err != nil {
 		s.logger.Error("failed to publish article created event", "article_id", article.ID, "error", err)
+		return nil, err
 	}
 
 	s.logger.Info("article created", "article_id", article.ID, "user_id", userID)

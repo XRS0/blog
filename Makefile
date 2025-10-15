@@ -17,14 +17,20 @@ proto-auth:
 		--go_out=services/api-gateway/proto/auth --go_opt=paths=source_relative \
 		--go-grpc_out=services/api-gateway/proto/auth --go-grpc_opt=paths=source_relative \
 		auth.proto
+	@echo "Generating auth proto for article-service..."
+	@mkdir -p services/article-service/proto/auth
+	protoc --proto_path=proto \
+		--go_out=services/article-service/proto/auth --go_opt=paths=source_relative \
+		--go-grpc_out=services/article-service/proto/auth --go-grpc_opt=paths=source_relative \
+		auth.proto
 
 # Generate article service proto (in article-service and api-gateway)
 proto-article:
 	@echo "Generating article proto for article-service..."
-	@mkdir -p services/article-service/proto
+	@mkdir -p services/article-service/proto/article
 	protoc --proto_path=proto \
-		--go_out=services/article-service/proto --go_opt=paths=source_relative \
-		--go-grpc_out=services/article-service/proto --go-grpc_opt=paths=source_relative \
+		--go_out=services/article-service/proto/article --go_opt=paths=source_relative \
+		--go-grpc_out=services/article-service/proto/article --go-grpc_opt=paths=source_relative \
 		article.proto
 	@echo "Generating article proto for api-gateway..."
 	@mkdir -p services/api-gateway/proto/article

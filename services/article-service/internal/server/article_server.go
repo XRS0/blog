@@ -8,7 +8,7 @@ import (
 
 	"github.com/XRS0/blog/services/article-service/internal/repository"
 	"github.com/XRS0/blog/services/article-service/internal/service"
-	pb "github.com/XRS0/blog/services/article-service/proto"
+	pb "github.com/XRS0/blog/services/article-service/proto/article"
 )
 
 type ArticleServer struct {

@@ -1,5 +1,4 @@
 package repository
-package repository
 
 import (
 	"context"
@@ -37,16 +36,16 @@ func NewStatsRepository(db *bun.DB) *StatsRepository {
 
 func (r *StatsRepository) RecordView(articleID, userID uint64) error {
 	ctx := context.Background()
-	
+
 	view := &ArticleView{
 		ArticleID: articleID,
 		CreatedAt: time.Now(),
 	}
-	
+
 	if userID > 0 {
 		view.UserID = &userID
 	}
-	
+
 	_, err := r.db.NewInsert().Model(view).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to record view: %w", err)
@@ -56,18 +55,18 @@ func (r *StatsRepository) RecordView(articleID, userID uint64) error {
 
 func (r *StatsRepository) RecordLike(articleID, userID uint64) error {
 	ctx := context.Background()
-	
+
 	like := &ArticleLike{
 		ArticleID: articleID,
 		UserID:    userID,
 		CreatedAt: time.Now(),
 	}
-	
+
 	_, err := r.db.NewInsert().
 		Model(like).
 		On("CONFLICT (article_id, user_id) DO NOTHING").
 		Exec(ctx)
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to record like: %w", err)
 	}
@@ -76,12 +75,12 @@ func (r *StatsRepository) RecordLike(articleID, userID uint64) error {
 
 func (r *StatsRepository) RemoveLike(articleID, userID uint64) error {
 	ctx := context.Background()
-	
+
 	_, err := r.db.NewDelete().
 		Model((*ArticleLike)(nil)).
 		Where("article_id = ? AND user_id = ?", articleID, userID).
 		Exec(ctx)
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to remove like: %w", err)
 	}
@@ -90,7 +89,7 @@ func (r *StatsRepository) RemoveLike(articleID, userID uint64) error {
 
 func (r *StatsRepository) GetArticleStats(articleID uint64) (views, likes uint64, err error) {
 	ctx := context.Background()
-	
+
 	// Get views count
 	viewCount, err := r.db.NewSelect().
 		Model((*ArticleView)(nil)).
@@ -99,7 +98,7 @@ func (r *StatsRepository) GetArticleStats(articleID uint64) (views, likes uint64
 	if err != nil {
 		return 0, 0, fmt.Errorf("failed to get views: %w", err)
 	}
-	
+
 	// Get likes count
 	likeCount, err := r.db.NewSelect().
 		Model((*ArticleLike)(nil)).
@@ -114,12 +113,12 @@ func (r *StatsRepository) GetArticleStats(articleID uint64) (views, likes uint64
 
 func (r *StatsRepository) IsLikedByUser(articleID, userID uint64) (bool, error) {
 	ctx := context.Background()
-	
+
 	exists, err := r.db.NewSelect().
 		Model((*ArticleLike)(nil)).
 		Where("article_id = ? AND user_id = ?", articleID, userID).
 		Exists(ctx)
-	
+
 	return exists, err
 }
 

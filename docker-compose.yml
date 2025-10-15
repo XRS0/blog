@@ -126,25 +126,24 @@ services:
     networks:
       - blog-network
     restart: unless-stopped
-
   # Legacy Backend (temporary, will be removed)
-  backend:
-    build:
-      context: ./backend
-    container_name: blog-backend-legacy
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgres://blog:blog@db:5432/blog?sslmode=disable
-      PORT: 8081
-      ALLOW_ORIGIN: http://localhost:5173
-      GIN_MODE: release
-    ports:
-      - "8081:8081"
-    networks:
-      - blog-network
-    restart: unless-stopped
+  # backend:
+  #   build:
+  #     context: ./backend
+  #   container_name: blog-backend-legacy
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   environment:
+  #     DATABASE_URL: postgres://blog:blog@db:5432/blog?sslmode=disable
+  #     PORT: 8081
+  #     ALLOW_ORIGIN: http://localhost:5173
+  #     GIN_MODE: release
+  #   ports:
+  #     - "8081:8081"
+  #   networks:
+  #     - blog-network
+  #   restart: unless-stopped
 
 volumes:
   postgres-data:

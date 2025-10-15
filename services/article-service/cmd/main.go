@@ -15,7 +15,7 @@ import (
 	"github.com/XRS0/blog/services/article-service/internal/repository"
 	"github.com/XRS0/blog/services/article-service/internal/server"
 	"github.com/XRS0/blog/services/article-service/internal/service"
-	pb "github.com/XRS0/blog/services/article-service/proto"
+	pb "github.com/XRS0/blog/services/article-service/proto/article"
 	sharedDB "github.com/XRS0/blog/shared/database"
 	sharedLogger "github.com/XRS0/blog/shared/logger"
 	"github.com/XRS0/blog/shared/rabbitmq"
@@ -60,14 +60,14 @@ func main() {
 	// Initialize repository and service
 	articleRepo := repository.NewArticleRepository(db)
 	authServiceURL := getEnv("AUTH_SERVICE_URL", "localhost:50051")
-	articleService, err := service.NewArticleService(articleRepo, authServiceURL, mq, logger)
+	articleService, err := service.NewArticleService(articleRepo, authServiceURL, mq, logger.Logger)
 	if err != nil {
 		log.Fatalf("failed to create article service: %v", err)
 	}
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	pb.RegisterArticleServiceServer(grpcServer, server.NewArticleServer(articleService, logger))
+	pb.RegisterArticleServiceServer(grpcServer, server.NewArticleServer(articleService, logger.Logger))
 
 	// Enable reflection for debugging
 	reflection.Register(grpcServer)

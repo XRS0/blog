@@ -45,11 +45,11 @@ func main() {
 	// Initialize repository and service
 	userRepo := repository.NewUserRepository(db)
 	jwtSecret := getEnv("JWT_SECRET", "dev-secret-change-me")
-	authService := service.NewAuthService(userRepo, jwtSecret, logger)
+	authService := service.NewAuthService(userRepo, jwtSecret, logger.Logger)
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	pb.RegisterAuthServiceServer(grpcServer, server.NewAuthServer(authService, logger))
+	pb.RegisterAuthServiceServer(grpcServer, server.NewAuthServer(authService, logger.Logger))
 
 	// Enable reflection for debugging
 	reflection.Register(grpcServer)
