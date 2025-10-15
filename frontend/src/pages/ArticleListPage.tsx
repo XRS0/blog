@@ -5,11 +5,26 @@ import type { Article } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 function formatDate(dateString: string): string {
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).format(new Date(dateString));
+  if (!dateString) {
+    return 'Неизвестно';
+  }
+  
+  try {
+    const date = new Date(dateString);
+    // Проверка на валидность даты
+    if (isNaN(date.getTime())) {
+      return 'Неизвестно';
+    }
+    
+    return new Intl.DateTimeFormat('ru-RU', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(date);
+  } catch (error) {
+    console.error('Error formatting date:', dateString, error);
+    return 'Неизвестно';
+  }
 }
 
 function ArticleListPage() {
@@ -94,14 +109,14 @@ function ArticleListPage() {
               style={{ animationDelay: `${index * 0.04}s` }}
             >
               <div className="chip-stack">
-                <span className="chip">{formatDate(article.updatedAt)}</span>
-                {article.author && <span className="chip">{article.author.username}</span>}
+                <span className="chip">{formatDate(article.updated_at)}</span>
+                {article.author && <span className="chip">{article.author}</span>}
                 {article.viewerLiked && <span className="chip">В избранном</span>}
               </div>
               <div>
                 <h2 className="card-title">{article.title}</h2>
                 <p className="helper-text" style={{ marginTop: '0.35rem' }}>
-                  {article.author ? `Автор: ${article.author.username}` : 'Автор неизвестен'} · {article.views} просмотров
+                  {article.author ? `Автор: ${article.author}` : 'Автор неизвестен'} · {article.views} просмотров
                 </p>
               </div>
               <p className="card-meta">

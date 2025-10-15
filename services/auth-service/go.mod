@@ -2,6 +2,8 @@ module github.com/XRS0/blog/services/auth-service
 
 go 1.24.5
 
+replace github.com/XRS0/blog/shared => ../../shared
+
 require (
 	github.com/XRS0/blog/shared v0.0.0-20251014090659-db8c789b0e32
 	github.com/golang-jwt/jwt/v5 v5.3.0

@@ -10,7 +10,16 @@ import (
 
 	articlepb "github.com/XRS0/blog/services/api-gateway/proto/article"
 	statspb "github.com/XRS0/blog/services/api-gateway/proto/stats"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+// Helper function to safely convert protobuf Timestamp to string
+func timestampToString(ts *timestamppb.Timestamp) string {
+	if ts == nil || !ts.IsValid() {
+		return ""
+	}
+	return ts.AsTime().Format("2006-01-02T15:04:05Z07:00") // RFC3339
+}
 
 type ArticleHandler struct {
 	articleClient articlepb.ArticleServiceClient
@@ -114,8 +123,8 @@ func (h *ArticleHandler) CreateArticle(c *gin.Context) {
 		"title":      article.Title,
 		"content":    article.Content,
 		"visibility": visibilityFromProto(article.Visibility),
-		"created_at": article.CreatedAt.AsTime(),
-		"updated_at": article.UpdatedAt.AsTime(),
+		"created_at": timestampToString(article.CreatedAt),
+		"updated_at": timestampToString(article.UpdatedAt),
 	}
 
 	// Add access token for link visibility
@@ -193,8 +202,8 @@ func (h *ArticleHandler) GetArticle(c *gin.Context) {
 		"views":       views,
 		"likes":       likes,
 		"viewerLiked": viewerLiked,
-		"created_at":  article.CreatedAt.AsTime(),
-		"updated_at":  article.UpdatedAt.AsTime(),
+		"created_at":  timestampToString(article.CreatedAt),
+		"updated_at":  timestampToString(article.UpdatedAt),
 	})
 }
 
@@ -262,8 +271,8 @@ func (h *ArticleHandler) ListArticles(c *gin.Context) {
 			"views":       views,
 			"likes":       likes,
 			"viewerLiked": viewerLiked,
-			"created_at":  article.CreatedAt.AsTime(),
-			"updated_at":  article.UpdatedAt.AsTime(),
+			"created_at":  timestampToString(article.CreatedAt),
+			"updated_at":  timestampToString(article.UpdatedAt),
 		}
 	}
 
@@ -320,8 +329,8 @@ func (h *ArticleHandler) UpdateArticle(c *gin.Context) {
 		"title":      article.Title,
 		"content":    article.Content,
 		"visibility": visibilityFromProto(article.Visibility),
-		"created_at": article.CreatedAt.AsTime(),
-		"updated_at": article.UpdatedAt.AsTime(),
+		"created_at": timestampToString(article.CreatedAt),
+		"updated_at": timestampToString(article.UpdatedAt),
 	}
 
 	// Add access token for link visibility

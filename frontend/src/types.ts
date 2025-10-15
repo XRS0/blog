@@ -2,9 +2,9 @@ export interface User {
   id: number;
   email: string;
   username: string;
-  contacts: string[];
-  createdAt: string;
-  updatedAt: string;
+  contacts?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Article {
@@ -15,9 +15,9 @@ export interface Article {
   views: number;
   likes: number;
   viewerLiked: boolean;
-  author?: User;
-  createdAt: string;
-  updatedAt: string;
+  author: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export type ArticlePayload = Pick<Article, 'title' | 'content'>;
@@ -38,11 +38,11 @@ export interface ProfileUpdatePayload {
 }
 
 export interface AuthResponse {
-  user: User;
   token: string;
+  user: User;
 }
 
 export interface LikeResponse {
-  article: Article;
-  liked: boolean;
+  likes: number;
+  success: boolean;
 }

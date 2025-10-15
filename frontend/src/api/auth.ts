@@ -50,8 +50,7 @@ export async function fetchProfile(token: string): Promise<User> {
       Authorization: `Bearer ${token}`
     }
   });
-  const data = await handleResponse<{ user: User }>(response);
-  return data.user;
+  return handleResponse<User>(response);
 }
 
 export async function updateProfile(token: string, payload: ProfileUpdatePayload): Promise<User> {

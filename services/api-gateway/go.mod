@@ -2,6 +2,8 @@ module github.com/XRS0/blog/services/api-gateway
 
 go 1.24.5
 
+replace github.com/XRS0/blog/shared => ../../shared
+
 require (
 	github.com/XRS0/blog/shared v0.0.0-20251014085611-1de8ea239448
 	github.com/gin-gonic/gin v1.11.0

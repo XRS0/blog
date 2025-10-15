@@ -60,23 +60,23 @@ func AddColumn(ctx context.Context, db *bun.DB, table, column, columnType string
 			WHERE table_name = ? AND column_name = ?
 		)
 	`, table, column).Scan(ctx, &exists)
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to check column existence: %w", err)
 	}
-	
+
 	if exists {
 		logger.Info("column already exists", "table", table, "column", column)
 		return nil
 	}
-	
+
 	// Add column
 	logger.Info("adding column", "table", table, "column", column, "type", columnType)
 	_, err = db.ExecContext(ctx, fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", table, column, columnType))
 	if err != nil {
 		return fmt.Errorf("failed to add column: %w", err)
 	}
-	
+
 	logger.Info("column added successfully", "table", table, "column", column)
 	return nil
 }

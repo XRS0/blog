@@ -6,13 +6,28 @@ import { useAuth } from '../context/AuthContext';
 import { MarkdownRenderer } from '../components/MarkdownRenderer';
 
 function formatDateTime(dateString: string): string {
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(dateString));
+  if (!dateString) {
+    return 'Неизвестно';
+  }
+  
+  try {
+    const date = new Date(dateString);
+    // Проверка на валидность даты
+    if (isNaN(date.getTime())) {
+      return 'Неизвестно';
+    }
+    
+    return new Intl.DateTimeFormat('ru-RU', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  } catch (error) {
+    console.error('Error formatting date:', dateString, error);
+    return 'Неизвестно';
+  }
 }
 
 function ArticleDetailPage() {
@@ -127,8 +142,8 @@ function ArticleDetailPage() {
           <span className="status-dot" aria-hidden />
           <span>{article.views} просмотров</span>
           <span>{article.likes} ❤</span>
-          <span>Обновлено {formatDateTime(article.updatedAt)}</span>
-          {article.author && <span>Автор: {article.author.username}</span>}
+          <span>Обновлено {formatDateTime(article.updated_at)}</span>
+          {article.author && <span>Автор: {article.author}</span>}
         </div>
       </div>
       <div className="article-body markdown-preview">

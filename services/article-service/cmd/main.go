@@ -43,6 +43,14 @@ func main() {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
 
+	// Add missing columns for existing tables
+	if err := sharedDB.AddColumn(ctx, db, "articles", "visibility", "VARCHAR(20) NOT NULL DEFAULT 'public'", logger.Logger); err != nil {
+		log.Fatalf("failed to add visibility column: %v", err)
+	}
+	if err := sharedDB.AddColumn(ctx, db, "articles", "access_token", "VARCHAR(255)", logger.Logger); err != nil {
+		log.Fatalf("failed to add access_token column: %v", err)
+	}
+
 	// RabbitMQ connection
 	mqURL := getEnv("RABBITMQ_URL", "amqp://blog:blog@localhost:5672/")
 	mq, err := rabbitmq.NewClient(mqURL, logger.Logger)

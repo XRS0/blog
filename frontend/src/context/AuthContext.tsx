@@ -20,7 +20,7 @@ const STORAGE_KEY = 'blog::token';
 function normalizeUser(authUser: User): User {
   const contacts = Array.isArray((authUser as unknown as { contacts?: unknown }).contacts)
     ? ((authUser as unknown as { contacts: unknown[] }).contacts.filter((value): value is string => typeof value === 'string'))
-    : [];
+    : undefined;
 
   return {
     ...authUser,
@@ -57,10 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       setLoading(true);
+      console.log('[AuthContext] Fetching profile with token:', token.substring(0, 20) + '...');
       const profile = await authApi.fetchProfile(token);
+      console.log('[AuthContext] Profile fetched successfully:', profile);
   setUser(normalizeUser(profile));
       setError(null);
     } catch (err) {
+      console.error('[AuthContext] Failed to fetch profile:', err);
       clearAuth();
       setError(err instanceof Error ? err.message : 'Не удалось получить профиль');
     } finally {
@@ -78,10 +81,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (payload: LoginPayload) => {
       try {
         setLoading(true);
+        console.log('[AuthContext] Attempting login...');
         const { token: authToken, user: authUser } = await authApi.login(payload);
+        console.log('[AuthContext] Login successful, token:', authToken.substring(0, 20) + '...', 'user:', authUser);
   applyAuth(authToken, authUser);
         setError(null);
       } catch (err) {
+        console.error('[AuthContext] Login failed:', err);
         const message = err instanceof Error ? err.message : 'Не удалось выполнить вход';
         setError(message);
         throw err;
